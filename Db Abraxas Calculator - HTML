@@ -1,0 +1,1527 @@
+<style>
+body{
+    font-family:Arial;
+    max-width:1200px;
+    margin:auto;
+    padding:20px;
+    background:#f2f2f2;
+}
+
+.section{
+    background:white;
+    padding:15px;
+    margin-bottom:15px;
+    border-radius:8px;
+}
+
+label{
+    display:block;
+    margin-top:10px;
+}
+
+input,select{
+    width:100%;
+    padding:6px;
+}
+
+button{
+    margin-top:15px;
+    padding:10px;
+    width:100%;
+}
+
+pre{
+    background:#111;
+    color:#0f0;
+    padding:15px;
+    overflow:auto;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Abraxas Calculator</h1>
+
+<div class="section">
+
+<label>Race</label>
+<select id="race">
+<option>Human</option>
+<option>Majin</option>
+<option>Namekian</option>
+<option>Tuffle</option>
+<option>Frost Demon</option>
+<option>Yunikun</option>
+<option>Bio-Android</option>
+<option>Saiyan</option>
+
+</select>
+
+<label>Subrace</label>
+<select id="subrace"></select>
+
+<label>Training Stage</label>
+<select id="stage">
+<option value="1">T1</option>
+<option value="2">T2</option>
+<option value="3">T3</option>
+<option value="4">T4</option>
+<option value="5">T5</option>
+<option value="6">T6</option>
+</select>
+
+<label>Tokens Used</label>
+<input id="tokens" type="number" value="8">
+
+<label>Starting BP</label>
+<input id="startingBP" type="number" value="10000">
+
+<label>Training Type</label>
+<select id="training">
+
+<option>Normal Training</option>
+
+<option>Weighted T1+2</option>
+<option>Weighted T3</option>
+<option>Weighted T4</option>
+<option>Weighted T5+</option>
+<option>Weighted T1+2 - Depleted</option>
+<option>Weighted T3 - Depleted</option>
+<option>Weighted T4 - Depleted</option>
+
+<option>Gravity T1</option>
+<option>Gravity T2</option>
+<option>Gravity T3</option>
+<option>Gravity T4</option>
+
+<option>Energy Amplification T1</option>
+<option>Energy Amplification T2</option>
+<option>Energy Amplification T3</option>
+<option>Energy Amplification T4</option>
+<option>Energy Amplification T1 - Fighting</option>
+<option>Energy Amplification T2 - Fighting</option>
+<option>Energy Amplification T3 - Fighting</option>
+<option>Energy Amplification T4 - Fighting</option>
+
+<option>Magic Refinement - Novice</option>
+<option>Magic Refinement - Average</option>
+<option>Magic Refinement - Above Average</option>
+<option>Magic Refinement - Expert</option>
+<option>Magic Refinement - Arcana Maximum</option>
+
+<option>Hyberbolic Time Chamber - Millennium Room 1 Days</option>
+<option>Hyberbolic Time Chamber - Millennium Room 2 Days</option>
+<option>Hyberbolic Time Chamber - Millennium Room 3 Days</option>
+<option>Hyberbolic Time Chamber - Millennium Room 4 Days</option>
+<option>Hyberbolic Time Chamber - Millennium Room 5 Days</option>
+<option>Hyberbolic Time Chamber - Millennium Room 6 Days</option>
+<option>Hyberbolic Time Chamber - Millennium Room 7 Days</option>
+<option>Hyberbolic Time Chamber - Millennium Room 8 Days</option>
+<option>Hyberbolic Time Chamber - Millennium Room 9 Days</option>
+<option>Hyberbolic Time Chamber - Millennium Room 10 Days</option>
+
+<option>Hyberbolic Time Chamber - Century Room 1 Year</option>
+<option>Hyberbolic Time Chamber - Century Room 2 Years</option>
+<option>Hyberbolic Time Chamber - Century Room 3 Years</option>
+<option>Hyberbolic Time Chamber - Century Room 4 Years</option>
+<option>Hyberbolic Time Chamber - Century Room 5 Years</option>
+<option>Hyberbolic Time Chamber - Century Room 6 Years</option>
+<option>Hyberbolic Time Chamber - Century Room 7 Years</option>
+<option>Hyberbolic Time Chamber - Century Room 8 Years</option>
+<option>Hyberbolic Time Chamber - Century Room 9 Years</option>
+<option>Hyberbolic Time Chamber - Century Room 10+ Years</option>
+</select>
+
+
+<button onclick="calculate()">Calculate</button>
+
+</div>
+
+<div class="section">
+
+<h2>Results</h2>
+
+<pre id="results"></pre>
+
+</div>
+
+<script>
+
+//
+// RACE DATA
+//
+
+const raceRules = {
+
+"Pure":{
+    lockedStage:4,
+    trainings:["Normal Training"]
+},
+
+"Saiyan":{
+    disableTrainingTokens:true
+},
+
+"Bio-Android":{
+    hideTrainingStage:false
+}
+
+};
+
+const raceSubraces = {
+
+Human: [
+"Basic",
+"Furry",
+"Three-Eyed"
+],
+
+Majin: [
+"Glind",
+"Mira",
+"Pure"
+],
+
+Namekian: [
+"Warrior Clan",
+"Dragon Clan"
+],
+
+Tuffle: [
+"Tuffle"
+],
+
+"Frost Demon": [
+"Frost Demon"
+],
+
+Yunikun: [
+"Yunikun - Friend Havers",
+"Yunikun - No Friends"
+],
+
+"Bio-Android": [
+"Bio-Android"
+],
+
+Saiyan: [
+"Saiyan"
+]
+
+};
+
+
+//
+// TRAINING RESTRICTIONS
+//
+
+const raceTrainingRestrictions = {
+
+"Pure": [
+"Normal Training"
+]
+
+};
+
+
+//
+// INITIALIZE MENUS
+//
+
+function updateMenus(){
+
+const race =
+document.getElementById("race").value;
+
+const subraceMenu =
+document.getElementById("subrace");
+
+const trainingMenu =
+document.getElementById("training");
+
+//
+// UPDATE SUBRACES
+//
+
+subraceMenu.innerHTML = "";
+
+raceSubraces[race].forEach(sub => {
+
+const option =
+document.createElement("option");
+
+option.textContent = sub;
+option.value = sub;
+
+subraceMenu.appendChild(option);
+
+});
+
+//
+// UPDATE TRAININGS
+//
+
+updateTrainingMenu();
+
+}
+
+function updateTrainingMenu(){
+
+const subrace =
+document.getElementById("subrace").value;
+
+const trainingMenu =
+document.getElementById("training");
+
+const allTrainings = [
+
+"Normal Training",
+
+"Weighted T1+2",
+"Weighted T3",
+"Weighted T4",
+"Weighted T5+",
+
+"Weighted T1+2 - Depleted",
+"Weighted T3 - Depleted",
+"Weighted T4 - Depleted",
+
+"Gravity T1",
+"Gravity T2",
+"Gravity T3",
+"Gravity T4",
+
+"Energy Amplification T1",
+"Energy Amplification T2",
+"Energy Amplification T3",
+"Energy Amplification T4",
+
+"Energy Amplification T1 - Fighting",
+"Energy Amplification T2 - Fighting",
+"Energy Amplification T3 - Fighting",
+"Energy Amplification T4 - Fighting",
+
+"Magic Refinement - Novice",
+"Magic Refinement - Average",
+"Magic Refinement - Above Average",
+"Magic Refinement - Expert",
+"Magic Refinement - Arcana Maximum"
+
+];
+
+trainingMenu.innerHTML = "";
+
+let allowedTrainings =
+allTrainings;
+
+if(raceTrainingRestrictions[subrace]){
+
+allowedTrainings =
+raceTrainingRestrictions[subrace];
+
+}
+
+allowedTrainings.forEach(training => {
+
+const option =
+document.createElement("option");
+
+option.textContent = training;
+option.value = training;
+
+trainingMenu.appendChild(option);
+
+});
+
+}
+
+function calculate(){
+
+let tokens =
+Number(document.getElementById("tokens").value);
+
+let startingBP =
+Number(document.getElementById("startingBP").value);
+
+let stage =
+Number(document.getElementById("stage").value);
+
+let training =
+document.getElementById("training").value;
+
+let race =
+document.getElementById("race").value;
+
+let subrace =
+document.getElementById("subrace").value;
+
+
+//
+// TRAINING STAGE VALUES
+//
+
+const stageValues = {
+
+1:8,
+2:12,
+3:12,
+4:16,
+5:25,
+6:45
+
+};
+
+let pointsPerToken =
+stageValues[stage];
+
+//
+// BONUS POINT VALUES
+//
+
+const bonusValues = {
+
+  1:13,
+  2:20,
+  3:50,
+  4:55,
+  5:125,
+  6:250
+
+};
+
+let BpointsPerToken =
+bonusValues[stage];
+
+
+//
+// BONUS PERCENT VALUES
+//
+
+const BpercentValues = {
+
+  1:1.0,
+  2:1.5,
+  3:1.5,
+  4:2.0,
+  5:5.0,
+  6:10.0
+
+}
+
+let BpercentPerToken =
+BpercentValues[stage];
+
+//
+// BASE TOKEN OUTPUT
+//
+
+let basePoints =
+tokens * pointsPerToken;
+
+let batches =
+Math.floor(tokens / 8);
+
+let bonusPoints =
+batches * BpointsPerToken;
+
+let freePercent =
+batches * BpercentPerToken;
+
+let SaiyanKneecap = 1;
+
+//
+// HUMAN RACIAL MODIFIERS
+//
+
+let pointMultiplier = 1;
+
+let bonusPointMultiplier = 1;
+
+let percentMultiplier = 1;
+
+let extraPercentText = "";
+
+switch(subrace){
+
+case "Basic":
+
+pointMultiplier = 5;
+RaceText =
+"Daring today, aren't we?"
+break;
+
+case "Furry":
+
+bonusPointMultiplier = 1;
+percentMultiplier = 5;
+RaceText =
+"Just stay away from the animals"
+break;
+
+case "Three-Eyed":
+
+pointMultiplier = 2;
+percentMultiplier = 3;
+
+RaceText =
+"Three-Eye Bonus: Duplicate all gained % from BONUS TOKENS to another stat.\n";
+break;
+
+
+case "Glind":
+
+pointMultiplier = 2;
+bonusPointMultiplier = 5;
+
+RaceText =
+"Don't forget Kai-Kai!!\n";
+break;
+
+case "Pure":
+
+pointMultiplier = 0;
+percentMultiplier = 0;
+bonusPointMultiplier = 0;
+
+RaceText =
+"Remember, Pure Majins can only Normal Train!\n";
+break;
+
+case "Mira":
+
+pointMultiplier = 1;
+
+RaceText =
+"Remember! Mira train like leaches on society, not people!\n";
+break;
+
+case "Warrior Clan":
+
+pointMultiplier = 2;
+bonusPointMultiplier = 2
+
+RaceText =
+"Slug!!\n";
+break;
+
+case "Dragon Clan":
+
+pointMultiplier = 1;
+
+RaceText =
+"Shouldn't you be in a nursing home?\n";
+break;
+
+case "Tuffle":
+
+pointMultiplier = 1;
+
+RaceText =
+"I'm sorry you were born to this race. Unlucky\n";
+break;
+
+case "Frost Demon":
+
+pointMultiplier = 3;
+bonusPointMultiplier = 3;
+
+RaceText =
+"For an ice lizard, you sure are HOT headed!!\n";
+break;
+
+case "Yunikun - No Friends":
+
+pointMultiplier = 1;
+bonusPointMultiplier = 1;
+
+RaceText =
+"Unlucky!! No friends????\n";
+break;
+
+case "Yunikun - Friend Havers":
+
+bpGainMultiplier += 5;
+
+RaceText =
+"Lucky you, you have friends!\n";
+break;
+
+case "Bio-Android":
+
+pointMultiplier = 1;
+bonusPointMultiplier = 1;
+
+RaceText =
+"Oof, no boost for you huh?\n";
+break;
+
+case "Saiyan":
+
+pointMultiplier = 1;
+SaiyanKneecap = 2;
+
+RaceText =
+"monkey\n";
+break;
+}
+
+basePoints *= pointMultiplier;
+
+bonusPoints *= bonusPointMultiplier;
+
+freePercent *= percentMultiplier;
+
+
+//
+// TRAINING MODIFIERS
+//
+
+let bpGainMultiplier = 1;
+let TotalBPMultiplier = 1;
+
+let strengthGain = 0;
+let dexGain = 0;
+let enduranceGain = 0;
+let enduranceGain2 = 0;
+let eqGain = 0;
+let magicGain = 0;
+let HTCpercent = 0;
+
+if(subrace === "Pure"){
+
+freePercent = 0;
+TotalBPMultiplier += tokens * 0.005;
+
+}
+
+//
+// WEIGHTED
+//
+
+if(training === "Weighted T1+2"){
+
+strengthGain += 20;
+strengthGain += batches * 5;
+TotalBPMultiplier = 2;
+
+}
+
+if(training === "Weighted T1+2 - Depleted"){
+
+strengthGain += 0;
+strengthGain += batches * 5;
+bpGainMultiplier = 3.5;
+
+}
+
+if(training === "Weighted T3"){
+
+strengthGain += 20;
+strengthGain += batches * 5;
+TotalBPMultiplier = 1.5;
+
+}
+
+if(training === "Weighted T3 - Depleted"){
+
+strengthGain += 0;
+strengthGain += batches * 5;
+bpGainMultiplier = 3.5;
+
+}
+
+if(training === "Weighted T4"){
+
+strengthGain += 20;
+strengthGain += batches * 5;
+TotalBPMultiplier = 1.2;
+
+}
+
+if(training === "Weighted T4 - Depleted"){
+
+strengthGain += 0;
+strengthGain += batches * 5;
+bpGainMultiplier = 3.5;
+
+}
+
+if(training === "Weighted T5+"){
+
+strengthGain += 20;
+strengthGain += batches * 5;
+TotalBPMultiplier = 1.1;
+
+}
+//
+// GRAVITY
+//
+
+if(training === "Gravity T1"){
+
+bpGainMultiplier = 1.5;
+
+enduranceGain += 25;
+enduranceGain2 += 10;
+enduranceGain += batches * 15;
+strengthGain += batches * 5;
+dexGain += batches * 5;
+
+}
+
+if(training === "Gravity T2"){
+
+bpGainMultiplier = 2.5;
+
+enduranceGain += 25;
+enduranceGain2 += 10;
+enduranceGain += batches * 15;
+strengthGain += batches * 5;
+dexGain += batches * 5;
+extraPercentText =
+"Brief Exhaustion: Reduce Power Level by 25% for 2 non-solo sessions. If you roll a 1, Gain an injury\n";
+InjuryChance = Math.floor(Math.random() * 6) + 1
+
+}
+
+if(training === "Gravity T3"){
+
+bpGainMultiplier = 4;
+
+enduranceGain += 30;
+enduranceGain2 += 15;
+enduranceGain += batches * 15;
+strengthGain += batches * 5;
+dexGain += batches * 5;
+extraPercentText =
+"Brief Exhaustion: Reduce Power Level by 50% for 3 non-solo sessions. If you roll a 1, Gain an injury\n";
+InjuryChance = Math.floor(Math.random() * 6) + 1
+InjuryChance2 = Math.floor(Math.random() * 6) + 1
+
+}
+
+if(training === "Gravity T4"){
+
+bpGainMultiplier = 1;
+TotalBPMultiplier += 2
+
+enduranceGain += 35;
+enduranceGain2 += 20;
+enduranceGain += batches * 15;
+strengthGain += batches * 5;
+dexGain += batches * 5;
+extraPercentText =
+"Brief Exhaustion: Reduce Power Level by 75% for 4 non-solo sessions. If you roll a 1, Gain an injury\n";
+InjuryChance = Math.floor(Math.random() * 6) + 1
+InjuryChance2 = Math.floor(Math.random() * 6) + 1
+InjuryChance3 = Math.floor(Math.random() * 6) + 1
+
+}
+
+//
+// ENERGY AMP
+//
+
+if(training === "Energy Amplification T1"){
+
+bpGainMultiplier = 1.5;
+
+eqGain += batches * 5;
+
+}
+
+if(training === "Energy Amplification T2"){
+
+bpGainMultiplier = 2;
+
+eqGain += batches * 10;
+InjuryChance = Math.floor(Math.random() * 6) + 1
+extraPercentText =
+"If you roll a 1, Sustain an injury for 5 non-solo sessions\n";
+
+}
+
+if(training === "Energy Amplification T3"){
+
+bpGainMultiplier = 4;
+
+eqGain += batches * 15;
+InjuryChance = Math.floor(Math.random() * 6) + 1
+InjuryChance2 = Math.floor(Math.random() * 6) + 1
+extraPercentText =
+"If you roll a 1, Sustain an injury for 5 non-solo sessions per injury\n";
+
+}
+
+if(training === "Energy Amplification T4"){
+
+bpGainMultiplier = 8;
+
+eqGain += batches * 25;
+InjuryChance = Math.floor(Math.random() * 6) + 1
+InjuryChance2 = Math.floor(Math.random() * 6) + 1
+InjuryChance3 = Math.floor(Math.random() * 6) + 1
+extraPercentText =
+"If you roll a 1, Sustain an injury for 5 non-solo sessions per injury\n";
+
+}
+
+if(training === "Energy Amplification T1 - Fighting"){
+
+bpGainMultiplier = 1;
+TotalBPMultiplier += 2
+eqGain += batches * 5;
+InjuryChance = Math.floor(Math.random() * 6) + 1
+extraPercentText =
+"If you roll a 1, Sustain an injury for 5 non-solo sessions per injury\n";
+
+}
+
+if(training === "Energy Amplification T2 - Fighting"){
+
+bpGainMultiplier = 1;
+TotalBPMultiplier += 2
+eqGain += batches * 10;
+InjuryChance = Math.floor(Math.random() * 6) + 1
+InjuryChance2 = Math.floor(Math.random() * 6) + 1
+extraPercentText =
+"If you roll a 1, Sustain an injury for 5 non-solo sessions per injury\n";
+
+}
+
+if(training === "Energy Amplification T3 - Fighting"){
+
+bpGainMultiplier = 1;
+TotalBPMultiplier += 2
+eqGain += batches * 15;
+InjuryChance = Math.floor(Math.random() * 6) + 1
+InjuryChance2 = Math.floor(Math.random() * 6) + 1
+InjuryChance3 = Math.floor(Math.random() * 6) + 1
+extraPercentText =
+"If you roll a 1, Sustain an injury for 5 non-solo sessions per injury\n";
+
+}
+
+if(training === "Energy Amplification T4 - Fighting"){
+
+bpGainMultiplier = 1;
+TotalBPMultiplier += 2
+eqGain += batches * 25;
+InjuryChance = Math.floor(Math.random() * 6) + 1
+InjuryChance2 = Math.floor(Math.random() * 6) + 1
+InjuryChance3 = Math.floor(Math.random() * 6) + 1
+InjuryChance4 = Math.floor(Math.random() * 6) + 1
+extraPercentText =
+"If you roll a 1, Sustain an injury for 5 non-solo sessions per injury\n";
+
+}
+
+//
+// MAGIC REFINEMENT
+//
+
+if(training === "Magic Refinement - Novice"){
+  
+  bpGainMultiplier = 1.25
+  magicGain += batches * 5;
+  
+}
+
+if(training === "Magic Refinement - Average"){
+ 
+  bpGainMultiplier = 1.75
+  magicGain += batches * 5;
+
+}
+
+if(training === "Magic Refinement - Above Average"){
+  
+  bpGainMultiplier = 2
+  magicGain += batches * 10;
+
+  InjuryChance = Math.floor(Math.random() * 100) + 1
+
+  extraPercentText =
+"If you roll a 5 or lower - Summon Staff for a 'Dangerous Mystical Rebound'\n";
+}
+
+if(training === "Magic Refinement - Expert"){
+  
+  bpGainMultiplier = 5
+  magicGain += batches * 25;
+
+  InjuryChance = Math.floor(Math.random() * 100) + 1
+
+  extraPercentText =
+"If you roll a 15 or lower - Summon Staff for a 'Super Dangerous Mystical Rebound'\n";
+
+}
+
+if(training === "Magic Refinement - Arcana Maximum"){
+  
+  bpGainMultiplier = 10
+  magicGain += batches * 50;
+
+  InjuryChance = Math.floor(Math.random() * 100) + 1
+
+  extraPercentText =
+"If you roll a 30 or lower - Summon Staff for a 'Catastrophic Mystical Recursion'. Also reduce gains to Expert\n";
+
+}
+
+//
+// HYPERBOLIC TIME CHAMBER
+//
+
+if(training === "Hyberbolic Time Chamber - Millennium Room 1 Days"){
+
+  bpGainMultiplier = 1.5
+  
+  strengthGain = 10;
+  dexGain = 10;
+  enduranceGain = 10;
+  eqGain = 10;
+  magicGain = 10;
+
+  HTCpercent += 10;
+}
+
+if(training === "Hyberbolic Time Chamber - Millennium Room 2 Days"){
+
+  bpGainMultiplier += 3
+  
+  strengthGain = 20;
+  dexGain = 20;
+  enduranceGain = 20;
+  eqGain = 20;
+  magicGain = 20;
+
+  HTCpercent += 20;
+}
+
+if(training === "Hyberbolic Time Chamber - Millennium Room 3 Days"){
+
+  bpGainMultiplier += 5.5
+  
+  strengthGain = 30;
+  dexGain = 30;
+  enduranceGain = 30;
+  eqGain = 30;
+  magicGain = 30;
+
+  HTCpercent += 30;
+}
+
+if(training === "Hyberbolic Time Chamber - Millennium Room 4 Days"){
+
+  bpGainMultiplier += 7
+  
+  strengthGain = 40;
+  dexGain = 40;
+  enduranceGain = 40;
+  eqGain = 40;
+  magicGain = 40;
+
+  HTCpercent += 40;
+}
+
+if(training === "Hyberbolic Time Chamber - Millennium Room 5 Days"){
+
+  bpGainMultiplier += 9.5
+  
+  strengthGain = 50;
+  dexGain = 50;
+  enduranceGain = 50;
+  eqGain = 50;
+  magicGain = 50;
+
+  HTCpercent += 50;
+}
+
+if(training === "Hyberbolic Time Chamber - Millennium Room 6 Days"){
+
+  bpGainMultiplier += 11
+  
+  strengthGain = 60;
+  dexGain = 60;
+  enduranceGain = 60;
+  eqGain = 60;
+  magicGain = 60;
+
+  HTCpercent += 60;
+}
+
+if(training === "Hyberbolic Time Chamber - Millennium Room 7 Days"){
+
+  bpGainMultiplier += 12.5
+  
+  strengthGain = 70;
+  dexGain = 70;
+  enduranceGain = 70;
+  eqGain = 70;
+  magicGain = 70;
+
+  HTCpercent += 70;
+}
+
+if(training === "Hyberbolic Time Chamber - Millennium Room 8 Days"){
+
+  bpGainMultiplier += 14
+  
+  strengthGain = 80;
+  dexGain = 80;
+  enduranceGain = 80;
+  eqGain = 80;
+  magicGain = 80;
+
+  HTCpercent += 80;
+}
+
+if(training === "Hyberbolic Time Chamber - Millennium Room 9 Days"){
+
+  bpGainMultiplier += 15.5
+  
+  strengthGain = 90;
+  dexGain = 90;
+  enduranceGain = 90;
+  eqGain = 90;
+  magicGain = 90;
+
+  HTCpercent += 90;
+}
+
+if(training === "Hyberbolic Time Chamber - Millennium Room 10 Days"){
+
+  bpGainMultiplier += 17
+  
+  strengthGain = 100;
+  dexGain = 100;
+  enduranceGain = 100;
+  eqGain = 100;
+  magicGain = 100;
+
+  HTCpercent += 100;
+}
+
+if(training === "Hyberbolic Time Chamber - Century Room 1 Year"){
+
+  TotalBPMultiplier = 10
+  
+  strengthGain = 100;
+  dexGain = 100;
+  enduranceGain = 100;
+  eqGain = 100;
+  magicGain = 100;
+
+  HTCpercent += 50;
+}
+
+if(training === "Hyberbolic Time Chamber - Century Room 2 Years"){
+
+  TotalBPMultiplier = 20
+  
+  strengthGain = 200;
+  dexGain = 200;
+  enduranceGain = 200;
+  eqGain = 200;
+  magicGain = 200;
+
+  HTCpercent += 100;
+}
+
+if(training === "Hyberbolic Time Chamber - Century Room 3 Years"){
+
+  TotalBPMultiplier = 30
+  
+  strengthGain = 300;
+  dexGain = 300;
+  enduranceGain = 300;
+  eqGain = 300;
+  magicGain = 300;
+
+  HTCpercent += 150;
+}
+
+if(training === "Hyberbolic Time Chamber - Century Room 4 Years"){
+
+  TotalBPMultiplier = 40
+  
+  strengthGain = 400;
+  dexGain = 400;
+  enduranceGain = 400;
+  eqGain = 400;
+  magicGain = 400;
+
+  HTCpercent += 200;
+  extraPercentText =
+"Your memories blur, time no longer moves as it should, and a mark appears on your body. 1 Temporal Scar\n"
+}
+
+if(training === "Hyberbolic Time Chamber - Century Room 5 Years"){
+
+  TotalBPMultiplier = 50
+  
+  strengthGain = 450;
+  dexGain = 450;
+  enduranceGain = 450;
+  eqGain = 450;
+  magicGain = 450;
+
+  HTCpercent += 225;
+  extraPercentText =
+"Your body feels unreal, the chamber grows dark and meanacing, your training slows. 3 Temporal Scars\n"
+}
+
+if(training === "Hyberbolic Time Chamber - Century Room 6 Years"){
+
+  TotalBPMultiplier = 60
+  
+  strengthGain = 500;
+  dexGain = 500;
+  enduranceGain = 500;
+  eqGain = 500;
+  magicGain = 500;
+
+  HTCpercent += 250;
+  extraPercentText =
+"Your body feels unreal, the chamber grows dark and meanacing, your training slows. 3 Temporal Scars\n"
+}
+
+if(training === "Hyberbolic Time Chamber - Century Room 7 Years"){
+
+  TotalBPMultiplier = 70
+  
+  strengthGain = 550;
+  dexGain = 550;
+  enduranceGain = 550;
+  eqGain = 550;
+  magicGain = 550;
+
+  HTCpercent += 275;
+  extraPercentText =
+"Time loops, Phantons across the horizon, you feel watched, you hear yourself from years past. 3 Temporal Scars and 1 Temporal Fracture\n"
+}
+
+if(training === "Hyberbolic Time Chamber - Century Room 8 Years"){
+
+  TotalBPMultiplier = 80
+  
+  strengthGain = 600;
+  dexGain = 600;
+  enduranceGain = 600;
+  eqGain = 600;
+  magicGain = 600;
+
+  HTCpercent += 300;
+  extraPercentText +=
+"Time loops, Phantons across the horizon, you feel watched, you hear yourself from years past. 3 Temporal Scars and 1 Temporal Fracture\n"
+}
+
+if(training === "Hyberbolic Time Chamber - Century Room 9 Years"){
+
+  TotalBPMultiplier = 90
+  
+  strengthGain = 650;
+  dexGain = 650;
+  enduranceGain = 650;
+  eqGain = 650;
+  magicGain = 650;
+
+  HTCpercent += 325;
+  extraPercentText =
+"The door rattles, the chamber cracks, cracks appear in the air, the phantoms are closer. 4 Temporal Scars and 2 Temporal Fracture\n"
+}
+
+if(training === "Hyberbolic Time Chamber - Century Room 10+ Years"){
+
+  TotalBPMultiplier = 100
+  
+  strengthGain = 700;
+  dexGain = 700;
+  enduranceGain = 700;
+  eqGain = 700;
+  magicGain = 700;
+
+  HTCpercent += 350;
+  extraPercentText =
+  "The door vanishes. A loud metal whine erupts. Contact admins for a Catastrophic Temporal Event"
+}
+
+//
+// FINAL BP
+//
+
+let totalTrainingPoints =
+(basePoints + bonusPoints) / SaiyanKneecap;
+
+let bpGain =
+Math.floor(
+totalTrainingPoints *
+bpGainMultiplier
+);
+
+if(training === "Magic Refinement - Novice"){
+magicGain =
+Math.floor(
+  totalTrainingPoints * 
+  bpGainMultiplier
+  );
+
+bpGain = 0
+freePercent = 0
+}
+
+if(training === "Magic Refinement - Average"){
+magicGain =
+Math.floor(
+  totalTrainingPoints * 
+  bpGainMultiplier
+  );
+
+bpGain = 0
+freePercent = 0
+}
+
+if(training === "Magic Refinement - Above Average"){
+magicGain =
+Math.floor(
+  totalTrainingPoints * 
+  bpGainMultiplier
+  );
+
+bpGain = 0
+freePercent = 0
+}
+
+if(training === "Magic Refinement - Expert"){
+magicGain =
+Math.floor(
+  totalTrainingPoints * 
+  bpGainMultiplier
+  );
+
+bpGain = 0
+freePercent = 0
+}
+
+if(training === "Magic Refinement - Arcana Maximum"){
+magicGain =
+Math.floor(
+  totalTrainingPoints * 
+  bpGainMultiplier
+  );
+
+bpGain = 0
+freePercent = 0
+}
+
+
+let finalBP =
+(startingBP +
+bpGain) * TotalBPMultiplier;
+
+let EndFree =
+(freePercent +
+HTCpercent
+);
+
+//
+// OUTPUT
+//
+
+let output = "";
+
+output += "=== INPUT ===\n\n";
+
+output += "Race: " + race + "\n";
+output += "Subrace: " + subrace + "\n";
+output += "Training: " + training + "\n";
+output += "Stage: T" + stage + "\n";
+output += "Tokens Used: " + tokens + "\n\n";
+
+output += "=== MATH ===\n\n";
+
+output +=
+"Base Points = " +
+tokens +
+" × " +
+pointsPerToken +
+" = " +
+(tokens * pointsPerToken) +
+"\n";
+
+output +=
+"After Race Point Multipliers = " +
+basePoints +
+"\n";
+
+output +=
+"Bonus Batches = " +
+batches +
+"\n";
+
+output +=
+"Bonus Points = " +
+bonusPoints +
+"\n";
+
+output +=
+"Free % = " +
+freePercent +
+"\n\n";
+
+output +=
+"Base Training Point Gain = " +
+totalTrainingPoints +
+"\n";
+
+output +=
+"Training Point Multiplier = x" +
+bpGainMultiplier +
+"\n";
+
+output +=
+"Total Point Gain = " +
+Math.trunc(bpGain) +
+"\n\n";
+
+output +=
+"Additional End BP Multiplier = " +
+"x" +
+TotalBPMultiplier +
+"\n\n";
+
+output += "=== RESULT ===\n\n";
+
+output +=
+"Starting BP: " +
+startingBP +
+"\n";
+
+output +=
+"Final BP: " +
+Math.trunc(finalBP) +
+"\n\n";
+
+output +=
+"Free Percentage: +" +
+EndFree +
+"%\n";
+
+if(strengthGain)
+output +=
+"Strength Gain: +" +
+strengthGain +
+"%\n";
+
+if(dexGain)
+output +=
+"Dexterity Gain: +" +
+dexGain +
+"%\n";
+
+if(enduranceGain)
+output +=
+"Endurance Gain: +" +
+enduranceGain +
+"%\n";
+
+if(enduranceGain2)
+output +=
+"Endurance Gain - IF already at or above 200% Endurance: +" +
+enduranceGain2 +
+"%\n";
+
+if(magicGain)
+output +=
+"Magic Gain: +" +
+magicGain +
+"%\n";
+
+if(eqGain)
+output +=
+"Energy Quality Gain: +" +
+eqGain +
+"%\n";
+
+if(training === "Gravity T2")
+output +=
+"Injury Chance: " +
+InjuryChance +
+"\n";
+
+if(training === "Gravity T3")
+output +=
+"Injury Chance: " +
+InjuryChance +
+"\n";
+
+if(training === "Gravity T3")
+output +=
+"Injury Chance: " +
+InjuryChance2 +
+"\n"
+
+if(training === "Gravity T4")
+output +=
+"Injury Chance: " +
+InjuryChance +
+"\n";
+
+if(training === "Gravity T4")
+output +=
+"Injury Chance: " +
+InjuryChance2 +
+"\n";
+
+if(training === "Gravity T4")
+output +=
+"Injury Chance: " +
+InjuryChance3 +
+"\n";
+
+if(training === "Energy Amplification T2")
+output +=
+"Injury Chance: " +
+InjuryChance +
+"\n";
+
+if(training === "Energy Amplification T3")
+output +=
+"Injury Chance: " +
+InjuryChance +
+"\n";
+
+if(training === "Energy Amplification T3")
+output +=
+"Injury Chance: " +
+InjuryChance2 +
+"\n";
+
+if(training === "Energy Amplification T4")
+output +=
+"Injury Chance: " +
+InjuryChance +
+"\n";
+
+if(training === "Energy Amplification T4")
+output +=
+"Injury Chance: " +
+InjuryChance2 +
+"\n";
+
+if(training === "Energy Amplification T4")
+output +=
+"Injury Chance: " +
+InjuryChance3 +
+"\n";
+
+if(training === "Energy Amplification T1 - Fighting")
+output +=
+"Injury Chance: " +
+InjuryChance +
+"\n";
+
+if(training === "Energy Amplification T2 - Fighting")
+output +=
+"Injury Chance: " +
+InjuryChance +
+"\n";
+
+if(training === "Energy Amplification T2 - Fighting")
+output +=
+"Injury Chance: " +
+InjuryChance2 +
+"\n";
+
+if(training === "Energy Amplification T3 - Fighting")
+output +=
+"Injury Chance: " +
+InjuryChance +
+"\n";
+
+if(training === "Energy Amplification T3 - Fighting")
+output +=
+"Injury Chance: " +
+InjuryChance2 +
+"\n";
+
+if(training === "Energy Amplification T3 - Fighting")
+output +=
+"Injury Chance: " +
+InjuryChance3 +
+"\n";
+
+if(training === "Energy Amplification T4 - Fighting")
+output +=
+"Injury Chance: " +
+InjuryChance +
+"\n";
+
+if(training === "Energy Amplification T4 - Fighting")
+output +=
+"Injury Chance: " +
+InjuryChance2 +
+"\n";
+
+if(training === "Energy Amplification T4 - Fighting")
+output +=
+"Injury Chance: " +
+InjuryChance3 +
+"\n";
+
+if(training === "Energy Amplification T4 - Fighting")
+output +=
+"Injury Chance: " +
+InjuryChance4 +
+"\n";
+
+if(training === "Magic Refinement - Above Average")
+output +=
+"Mystic Consequences: " +
+InjuryChance +
+"\n";
+
+if(training === "Magic Refinement - Expert")
+output +=
+"Mystic Consequences: " +
+InjuryChance +
+"\n";
+
+if(training === "Magic Refinement - Arcana Maximum")
+output +=
+"Mystic Consequences: " +
+InjuryChance +
+"\n";
+
+output += "\n" + extraPercentText;
+
+output += "\n" + RaceText;
+
+
+document.getElementById("results").innerText =
+output;
+
+}
+
+document
+.getElementById("race")
+.addEventListener(
+"change",
+updateMenus
+);
+
+document
+.getElementById("subrace")
+.addEventListener(
+"change",
+updateTrainingMenu
+);
+
+updateMenus();
+
+</script>
+
+</body>
+</html>
