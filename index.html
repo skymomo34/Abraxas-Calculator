@@ -1,14 +1,14 @@
 <style>
 body{
-    font-family:Arial;
+    font-family:comic;
     max-width:1200px;
     margin:auto;
     padding:20px;
-    background:#f2f2f2;
+    background:#9FE2BF;
 }
 
 .section{
-    background:white;
+    background:#9FE2BF;
     padding:15px;
     margin-bottom:15px;
     border-radius:8px;
@@ -134,7 +134,7 @@ pre{
 </select>
 
 
-<button onclick="calculate()">Calculate</button>
+<button onclick="calculate()">Rev Up Those Friers!</button>
 
 </div>
 
@@ -147,6 +147,14 @@ pre{
 </div>
 
 <script>
+
+//
+// FIXES
+//
+
+let tokens = parseFloat("tokens".replaceAll(",", ""));
+
+let startingBP = parseFloat("startingBP".replaceAll(",", ""));
 
 //
 // RACE DATA
