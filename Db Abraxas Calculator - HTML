@@ -431,6 +431,30 @@ batches * BpercentPerToken;
 let SaiyanKneecap = 1;
 
 //
+// TRAINING MODIFIERS
+//
+
+let bpGainMultiplier = 1;
+let TotalBPMultiplier = 1;
+let racialBPMultiplier = 1;
+
+let strengthGain = 0;
+let dexGain = 0;
+let enduranceGain = 0;
+let enduranceGain2 = 0;
+let eqGain = 0;
+let magicGain = 0;
+let HTCpercent = 0;
+
+bpGainMultiplier += racialBPMultiplier;
+
+if(subrace === "Pure"){
+
+freePercent = 0;
+TotalBPMultiplier += tokens * 0.005;
+
+}
+//
 // HUMAN RACIAL MODIFIERS
 //
 
@@ -534,6 +558,7 @@ case "Yunikun - No Friends":
 
 pointMultiplier = 1;
 bonusPointMultiplier = 1;
+racialBPMultiplier += 1;
 
 RaceText =
 "Unlucky!! No friends????\n";
@@ -541,7 +566,9 @@ break;
 
 case "Yunikun - Friend Havers":
 
-bpGainMultiplier += 5;
+pointMultiplier =1;
+bonusPointMultiplier = 1;
+racialBPMultiplier += 5;
 
 RaceText =
 "Lucky you, you have friends!\n";
@@ -572,28 +599,6 @@ bonusPoints *= bonusPointMultiplier;
 
 freePercent *= percentMultiplier;
 
-
-//
-// TRAINING MODIFIERS
-//
-
-let bpGainMultiplier = 1;
-let TotalBPMultiplier = 1;
-
-let strengthGain = 0;
-let dexGain = 0;
-let enduranceGain = 0;
-let enduranceGain2 = 0;
-let eqGain = 0;
-let magicGain = 0;
-let HTCpercent = 0;
-
-if(subrace === "Pure"){
-
-freePercent = 0;
-TotalBPMultiplier += tokens * 0.005;
-
-}
 
 //
 // WEIGHTED
@@ -1153,7 +1158,7 @@ if(training === "Hyberbolic Time Chamber - Century Room 10+ Years"){
 //
 
 let totalTrainingPoints =
-(basePoints + bonusPoints) / SaiyanKneecap;
+(basePoints + bonusPoints) * racialBPMultiplier / SaiyanKneecap;
 
 let bpGain =
 Math.floor(
