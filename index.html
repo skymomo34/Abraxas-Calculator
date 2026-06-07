@@ -17,18 +17,92 @@ body{
 }
 
 @keyframes brolyPulse{
+    0%{
+        filter:brightness(100%);
+    }
 
-0%{
-filter:brightness(100%);
+    25%{
+        filter:brightness(150%);
+    }
+
+    50%{
+        filter:brightness(200%);
+    }
+
+    75%{
+        filter:brightness(160%);
+    }
+
+    100%{
+        filter:brightness(100%);
+    }
 }
 
-50%{
-filter:brightness(140%);
+body.broly-mode{
+    box-shadow:
+        inset 0 0 80px #00ff00,
+        inset 0 0 150px #00ff00;
 }
 
-100%{
-filter:brightness(100%);
+@keyframes brolyShake{
+
+    0%{transform:translate(0);}
+    25%{transform:translate(1px,-1px);}
+    50%{transform:translate(-1px,1px);}
+    75%{transform:translate(1px,1px);}
+    100%{transform:translate(0);}
 }
+
+body.broly-mode{
+    animation:
+        brolyPulse 0.8s infinite,
+        brolyShake 0.08s infinite;
+}
+
+#particles{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+    z-index:999;
+}
+
+.particle{
+    position:absolute;
+    bottom:-20px;
+
+    width:6px;
+    height:6px;
+
+    background:#00ff00;
+
+    border-radius:50%;
+
+    box-shadow:
+        0 0 5px #00ff00,
+        0 0 10px #00ff00,
+        0 0 20px #00ff00;
+
+    animation:floatUp linear forwards;
+}
+
+@keyframes floatUp{
+
+    from{
+        transform:
+            translateY(0)
+            scale(1);
+
+        opacity:1;
+    }
+
+    to{
+        transform:
+            translateY(-120vh)
+            scale(0);
+
+        opacity:0;
+    }
 
 }
 .section{
@@ -64,13 +138,13 @@ pre{
 </head>
 
 <body>
+<div id="particles"></div>
 
 <button id="themeButton" onclick="cycleTheme()">
 Change Theme
 </button>
 
 <h1>Abraxas Calculator</h1>
-
 <div class="section">
 
 <label>Race</label>
@@ -180,6 +254,7 @@ Change Theme
 
 <script>
 
+
 const themes = [
 
 {
@@ -221,54 +296,106 @@ section:"#c0392b"
 {
 name:"Broly",
 body:"#00ff00",
-section:"#111111"
+section:"#333333"
 }
 
 ];
+
 
 let currentTheme = 0;
 
 function cycleTheme(){
 
-currentTheme++;
+    currentTheme =
+    (currentTheme + 1) % themes.length;
 
-if(currentTheme >= themes.length){
-currentTheme = 0;
-}
+    const theme =
+    themes[currentTheme];
 
-const theme = themes[currentTheme];
+    document.body.style.background =
+    theme.body;
 
-document.body.style.background =
-theme.body;
+    document.querySelectorAll(".section")
+    .forEach(section => {
+        section.style.background =
+        theme.section;
+    });
 
-document.querySelectorAll(".section")
-.forEach(section => {
+    if(theme.name === "Broly"){
+    
+    startBrolyParticles();
+    document.body.classList.add("broly-mode");
 
-section.style.background =
-theme.section;
+    brolyMusic.play();
 
-if(theme.name === "Broly"){
+}else{
 
-document.body.style.animation =
-"brolyPulse";
+    stopBrolyParticles();
+    document.body.classList.remove("broly-mode");
 
-}
-else{
-
-document.body.style.animation =
-"none";
-
-}
-
-});
-
-document.getElementById("themeButton")
-.innerText =
-theme.name + " Theme";
-
+    brolyMusic.pause();
+    brolyMusic.currentTime = 0;
 
 }
+}
+let particleInterval;
 
+function startBrolyParticles(){
+
+    const container =
+    document.getElementById("particles");
+
+    particleInterval =
+    setInterval(() => {
+
+        const particle =
+        document.createElement("div");
+
+        particle.className =
+        "particle";
+
+        particle.style.left =
+        Math.random() * 100 + "%";
+
+        particle.style.animationDuration =
+        (Math.random() * 3 + 2) + "s";
+
+        container.appendChild(particle);
+
+        particle.addEventListener(
+            "animationend",
+            () => particle.remove()
+        );
+
+    },50);
+
+}
+
+function stopBrolyParticles(){
+
+    clearInterval(
+        particleInterval
+    );
+
+    document.getElementById("particles")
+    .innerHTML = "";
+
+}
+
+setInterval(() => {
+
+    if(currentTheme !== 6) return;
+
+    document.body.style.filter =
+    "brightness(250%)";
+
+    setTimeout(() => {
+
+        document.body.style.filter = "";
+
+    },100);
+
+},3000);
 //
 // RACE DATA
 //
@@ -560,7 +687,7 @@ let SaiyanKneecap = 1;
 
 let bpGainMultiplier = 1;
 let TotalBPMultiplier = 1;
-let racialBPMultiplier = 1;
+let racialBPMultiplier = 0;
 
 let strengthGain = 0;
 let dexGain = 0;
@@ -689,7 +816,7 @@ case "Yunikun - Friend Havers":
 
 pointMultiplier =1;
 bonusPointMultiplier = 1;
-racialBPMultiplier = 4;
+racialBPMultiplier = 5;
 
 RaceText =
 "Lucky you, you have friends!\n";
@@ -1281,7 +1408,7 @@ if(htc === "Hyberbolic Time Chamber - Century Room 10+ Years"){
 //
 
 let totalTrainingPoints =
-(basePoints + bonusPoints) * racialBPMultiplier / SaiyanKneecap;
+(basePoints + bonusPoints) / SaiyanKneecap;
 
 let bpGain =
 Math.floor(
