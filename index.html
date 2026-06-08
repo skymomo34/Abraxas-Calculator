@@ -213,6 +213,14 @@ Change Theme
 <option>Magic Refinement - Arcana Maximum</option>
 </select>
 
+<label>Gravity Bonus Choice</label>
+<select id="gravityChoice">
+    <option>None</option>
+    <option>Endurance</option>
+    <option>Strength</option>
+    <option>Speed</option>
+</select>
+
 <label>Hyperbolic Time Chamber</label>
 <select id="htc">
 <option>Not Using</option>
@@ -693,8 +701,8 @@ let SaiyanKneecap = 1;
 // TRAINING MODIFIERS
 //
 
-let bpGainMultiplier = 1;
-let TotalBPMultiplier = 1;
+let bpGainMultiplier = 0;
+let TotalBPMultiplier = 0;
 let racialBPMultiplier = 0;
 
 let strengthGain = 0;
@@ -1328,9 +1336,29 @@ TotalBPMultiplier += data.totalMultiplier || 0;
 enduranceGain += data.endurance || 0;
 enduranceGain2 += data.endurance2 || 0;
 
-enduranceGain += batches * (data.batchEndurance || 0);
-strengthGain += batches * (data.batchStrength || 0);
-dexGain += batches * (data.batchDex || 0);
+const gravityChoice =
+document.getElementById("gravityChoice").value;
+
+if(gravityChoice === "Endurance"){
+
+    enduranceGain +=
+    batches * (data.batchEndurance || 0);
+
+}
+
+else if(gravityChoice === "Strength"){
+
+    strengthGain +=
+    batches * (data.batchStrength || 0);
+
+}
+
+else if(gravityChoice === "Speed"){
+
+    dexGain +=
+    batches * (data.batchDex || 0);
+
+}
 
 extraPercentText = data.text || "";
 
@@ -1515,6 +1543,12 @@ if(MAGIC_DATA[training]){
 
 }
 
+if(bpGainMultiplier <= 0)
+    bpGainMultiplier = 1;
+
+if(TotalBPMultiplier <= 0)
+    TotalBPMultiplier = 1;
+
 let finalBP =
 (startingBP +
 bpGain) * TotalBPMultiplier;
@@ -1650,13 +1684,13 @@ dexGain +
 
 if(enduranceGain)
 output +=
-"Endurance Gain: +" +
+"Endurance Gain (<200% Endurance): +" +
 enduranceGain +
 "%\n";
 
 if(enduranceGain2)
 output +=
-"Endurance Gain - IF already at or above 200% Endurance: +" +
+"Endurance Gain (200%+ Endurance): +" +
 enduranceGain2 +
 "%\n";
 
