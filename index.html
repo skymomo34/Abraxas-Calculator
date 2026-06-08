@@ -1530,6 +1530,13 @@ if(hasKiDisorder){
     permanentBPReduction += 0.10;
 }
 
+if(bpGainMultiplier <= 0)
+    bpGainMultiplier = 1;
+
+if(TotalBPMultiplier <= 0)
+    TotalBPMultiplier = 1;
+
+
 let bpGain =
 Math.floor(
 totalTrainingPoints *
@@ -1543,11 +1550,6 @@ if(MAGIC_DATA[training]){
 
 }
 
-if(bpGainMultiplier <= 0)
-    bpGainMultiplier = 1;
-
-if(TotalBPMultiplier <= 0)
-    TotalBPMultiplier = 1;
 
 let finalBP =
 (startingBP +
