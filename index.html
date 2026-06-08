@@ -71,8 +71,8 @@ body.broly-mode{
     position:absolute;
     bottom:-20px;
 
-    width:6px;
-    height:6px;
+    width:8px;
+    height:8px;
 
     background:#00ff00;
 
@@ -326,15 +326,12 @@ function cycleTheme(){
     startBrolyParticles();
     document.body.classList.add("broly-mode");
 
-    brolyMusic.play();
 
 }else{
 
     stopBrolyParticles();
     document.body.classList.remove("broly-mode");
 
-    brolyMusic.pause();
-    brolyMusic.currentTime = 0;
 
 }
 }
@@ -387,15 +384,23 @@ setInterval(() => {
     if(currentTheme !== 6) return;
 
     document.body.style.filter =
-    "brightness(250%)";
+    "brightness(300%)";
+
+    document.body.style.boxShadow =
+    "inset 0 0 300px #00ff00";
 
     setTimeout(() => {
 
         document.body.style.filter = "";
 
-    },100);
+        document.body.style.boxShadow =
+        "inset 0 0 80px #00ff00";
 
-},3000);
+    },150);
+
+},2500);
+
+
 //
 // RACE DATA
 //
@@ -607,6 +612,9 @@ document.getElementById("race").value;
 let subrace =
 document.getElementById("subrace").value;
 
+let lifeThreateningCount = 0;
+let permanentBPReduction = 0;
+let output = "";
 
 //
 // TRAINING STAGE VALUES
@@ -704,9 +712,10 @@ TotalBPMultiplier += tokens * 0.005;
 
 }
 //
-// HUMAN RACIAL MODIFIERS
+// RACIAL MODIFIERS
 //
 
+let RaceText = "";
 let pointMultiplier = 1;
 
 let bonusPointMultiplier = 1;
@@ -766,7 +775,7 @@ case "Mira":
 pointMultiplier = 1;
 
 RaceText =
-"Remember! Mira train like leaches on society, not people!\n";
+"Remember! Mira train like leeches on society, not people!\n";
 break;
 
 case "Warrior Clan":
@@ -849,566 +858,649 @@ freePercent *= percentMultiplier;
 
 bpGainMultiplier += racialBPMultiplier;
 
+let totalTrainingPoints =
+(basePoints + bonusPoints) / SaiyanKneecap;
 
 //
-// WEIGHTED
+// TRAINING VALUES
 //
 
-if(training === "Weighted T1+2"){
+//// H Y P E R B O L I C - T I M E - C H A M B E R
 
-strengthGain += 20;
-strengthGain += batches * 5;
-TotalBPMultiplier += 2;
+const HTC_DATA = {
 
+"Hyberbolic Time Chamber - Millennium Room 1 Days":{
+    bpGainMultiplier:1.5,
+    strength:10,
+    dex:10,
+    endurance:10,
+    eq:10,
+    magic:10,
+    htcPercent:10
+},
+
+"Hyberbolic Time Chamber - Millennium Room 2 Days":{
+    bpGainMultiplier:3,
+    strength:20,
+    dex:20,
+    endurance:20,
+    eq:20,
+    magic:20,
+    htcPercent:20
+},
+
+"Hyberbolic Time Chamber - Millennium Room 3 Days":{
+    bpGainMultiplier:5.5,
+    strength:30,
+    dex:30,
+    endurance:30,
+    eq:30,
+    magic:30,
+    htcPercent:30
+},
+
+"Hyberbolic Time Chamber - Millennium Room 4 Days":{
+    bpGainMultiplier:7,
+    strength:40,
+    dex:40,
+    endurance:40,
+    eq:40,
+    magic:40,
+    htcPercent:40
+},
+
+"Hyberbolic Time Chamber - Millennium Room 5 Days":{
+    bpGainMultiplier:9.5,
+    strength:50,
+    dex:50,
+    endurance:50,
+    eq:50,
+    magic:50,
+    htcPercent:50
+},
+
+"Hyberbolic Time Chamber - Millennium Room 6 Days":{
+    bpGainMultiplier:11,
+    strength:60,
+    dex:60,
+    endurance:60,
+    eq:60,
+    magic:60,
+    htcPercent:60
+},
+
+"Hyberbolic Time Chamber - Millennium Room 7 Days":{
+    bpGainMultiplier:12.5,
+    strength:70,
+    dex:70,
+    endurance:70,
+    eq:70,
+    magic:70,
+    htcPercent:70
+},
+
+"Hyberbolic Time Chamber - Millennium Room 8 Days":{
+    bpGainMultiplier:14,
+    strength:80,
+    dex:80,
+    endurance:80,
+    eq:80,
+    magic:80,
+    htcPercent:80
+},
+
+"Hyberbolic Time Chamber - Millennium Room 9 Days":{
+    bpGainMultiplier:15.5,
+    strength:90,
+    dex:90,
+    endurance:90,
+    eq:90,
+    magic:90,
+    htcPercent:90
+},
+
+"Hyberbolic Time Chamber - Millennium Room 10 Days":{
+    bpGainMultiplier:17,
+    strength:100,
+    dex:100,
+    endurance:100,
+    eq:100,
+    magic:100,
+    htcPercent:100
+},
+
+"Hyberbolic Time Chamber - Century Room 1 Year":{
+    totalMultiplier:10,
+    strength:100,
+    dex:100,
+    endurance:100,
+    eq:100,
+    magic:100,
+    htcPercent:50
+},
+
+"Hyberbolic Time Chamber - Century Room 2 Years":{
+    totalMultiplier:20,
+    strength:200,
+    dex:200,
+    endurance:200,
+    eq:200,
+    magic:200,
+    htcPercent:100
+},
+
+"Hyberbolic Time Chamber - Century Room 3 Years":{
+    totalMultiplier:30,
+    strength:300,
+    dex:300,
+    endurance:300,
+    eq:300,
+    magic:300,
+    htcPercent:150
+},
+
+"Hyberbolic Time Chamber - Century Room 4 Years":{
+    totalMultiplier:40,
+    strength:400,
+    dex:400,
+    endurance:400,
+    eq:400,
+    magic:400,
+    htcPercent:200,
+    text:"Your memories blur, time no longer moves as it should, and a mark appears on your body. 1 Temporal Scar\n"
+},
+
+"Hyberbolic Time Chamber - Century Room 5 Years":{
+    totalMultiplier:50,
+    strength:450,
+    dex:450,
+    endurance:450,
+    eq:450,
+    magic:450,
+    htcPercent:225,
+    text:"Your body feels unreal, the chamber grows dark and meanacing, your training slows. 3 Temporal Scars\n"
+},
+
+"Hyberbolic Time Chamber - Century Room 6 Years":{
+    totalMultiplier:60,
+    strength:500,
+    dex:500,
+    endurance:500,
+    eq:500,
+    magic:500,
+    htcPercent:250,
+    text:"Your body feels unreal, the chamber grows dark and meanacing, your training slows. 3 Temporal Scars\n"
+},
+
+"Hyberbolic Time Chamber - Century Room 7 Years":{
+    totalMultiplier:70,
+    strength:550,
+    dex:550,
+    endurance:550,
+    eq:550,
+    magic:550,
+    htcPercent:275,
+    text:"Time loops, Phantons across the horizon, you feel watched, you hear yourself from years past. 3 Temporal Scars and 1 Temporal Fracture\n"
+},
+
+"Hyberbolic Time Chamber - Century Room 8 Years":{
+    totalMultiplier:80,
+    strength:600,
+    dex:600,
+    endurance:600,
+    eq:600,
+    magic:600,
+    htcPercent:300,
+    text:"Time loops, Phantons across the horizon, you feel watched, you hear yourself from years past. 3 Temporal Scars and 1 Temporal Fracture\n"
+},
+
+"Hyberbolic Time Chamber - Century Room 9 Years":{
+    totalMultiplier:90,
+    strength:650,
+    dex:650,
+    endurance:650,
+    eq:650,
+    magic:650,
+    htcPercent:325,
+    text:"The door rattles, the chamber cracks, cracks appear in the air, the phantoms are closer. 4 Temporal Scars and 2 Temporal Fracture\n"
+},
+
+"Hyberbolic Time Chamber - Century Room 10+ Years":{
+    totalMultiplier:100,
+    strength:700,
+    dex:700,
+    endurance:700,
+    eq:700,
+    magic:700,
+    htcPercent:350,
+    text:"The door vanishes. A loud metal whine erupts. Contact admins for a Catastrophic Temporal Event"
 }
 
-if(training === "Weighted T1+2 - Depleted"){
+};
 
-strengthGain += 0;
-strengthGain += batches * 5;
-bpGainMultiplier += 3.5;
+//// G R A V I T Y
 
+const GRAVITY_DATA = {
+
+"Gravity T1":{
+    bpGainMultiplier:1.5,
+    endurance:25,
+    endurance2:10,
+    batchEndurance:15,
+    batchStrength:5,
+    batchDex:5
+},
+
+"Gravity T2":{
+    bpGainMultiplier:2.5,
+    endurance:25,
+    endurance2:10,
+    batchEndurance:15,
+    batchStrength:5,
+    batchDex:5,
+    injuries:1,
+    text:"Brief Exhaustion: Reduce Power Level by 25% for 2 non-solo sessions. If you roll a 1, Gain an injury\n"
+},
+
+"Gravity T3":{
+    bpGainMultiplier:4,
+    endurance:30,
+    endurance2:15,
+    batchEndurance:15,
+    batchStrength:5,
+    batchDex:5,
+    injuries:2,
+    text:"Brief Exhaustion: Reduce Power Level by 50% for 3 non-solo sessions. If you roll a 1, Gain an injury\n"
+},
+
+"Gravity T4":{
+    bpGainMultiplier:1,
+    totalMultiplier:2,
+    endurance:35,
+    endurance2:20,
+    batchEndurance:15,
+    batchStrength:5,
+    batchDex:5,
+    injuries:3,
+    lifeThreatening:true,
+    text:"Brief Exhaustion: Reduce Power Level by 75% for 4 non-solo sessions. If you roll a 1, Gain an injury\n"
 }
 
-if(training === "Weighted T3"){
+};
 
-strengthGain += 20;
-strengthGain += batches * 5;
-TotalBPMultiplier += 1.5;
+//// E N E R G Y - A M P L I F I C A T I O N
+let hasKiDisorder = false;
 
+const ENERGY_DATA = {
+
+"Energy Amplification T1":{
+    bpGainMultiplier:1.5,
+    eqBatch:5
+},
+
+"Energy Amplification T2":{
+    bpGainMultiplier:2,
+    eqBatch:10,
+    injuries:1,
+    text:"If you roll a 1, Sustain an injury for 5 non-solo sessions\n"
+},
+
+"Energy Amplification T3":{
+    bpGainMultiplier:4,
+    eqBatch:15,
+    injuries:2,
+    text:"If you roll a 1, Sustain an injury for 5 non-solo sessions per injury\n"
+},
+
+"Energy Amplification T4":{
+    bpGainMultiplier:8,
+    eqBatch:25,
+    injuries:3,
+    text:"If you roll a 1, Sustain an injury for 5 non-solo sessions per injury\n"
+},
+
+"Energy Amplification T1 - Fighting":{
+    bpGainMultiplier:1,
+    totalMultiplier:2,
+    eqBatch:5,
+    injuries:1,
+    text:"If you roll a 1, Sustain an injury for 5 non-solo sessions per injury\n"
+},
+
+"Energy Amplification T2 - Fighting":{
+    bpGainMultiplier:1,
+    totalMultiplier:2,
+    eqBatch:10,
+    injuries:2,
+    text:"If you roll a 1, Sustain an injury for 5 non-solo sessions per injury\n"
+},
+
+"Energy Amplification T3 - Fighting":{
+    bpGainMultiplier:1,
+    totalMultiplier:2,
+    eqBatch:15,
+    injuries:3,
+    text:"If you roll a 1, Sustain an injury for 5 non-solo sessions per injury\n"
+},
+
+"Energy Amplification T4 - Fighting":{
+    bpGainMultiplier:1,
+    totalMultiplier:2,
+    eqBatch:25,
+    injuries:4,
+    text:"If you roll a 1, Sustain an injury for 5 non-solo sessions per injury\n"
 }
 
-if(training === "Weighted T3 - Depleted"){
+};
 
-strengthGain += 0;
-strengthGain += batches * 5;
-bpGainMultiplier += 3.5;
+//// W E I G H T E D - T R A I N I N G
 
+const WEIGHTED_DATA = {
+
+"Weighted T1+2":{
+    strength:20,
+    batchStrength:5,
+    totalMultiplier:2
+},
+
+"Weighted T1+2 - Depleted":{
+    batchStrength:5,
+    bpGainMultiplier:3.5
+},
+
+"Weighted T3":{
+    strength:20,
+    batchStrength:5,
+    totalMultiplier:1.5
+},
+
+"Weighted T3 - Depleted":{
+    batchStrength:5,
+    bpGainMultiplier:3.5
+},
+
+"Weighted T4":{
+    strength:20,
+    batchStrength:5,
+    totalMultiplier:1.2
+},
+
+"Weighted T4 - Depleted":{
+    batchStrength:5,
+    bpGainMultiplier:3.5
+},
+
+"Weighted T5+":{
+    strength:20,
+    batchStrength:5,
+    totalMultiplier:1.1
 }
 
-if(training === "Weighted T4"){
+};
 
-strengthGain += 20;
-strengthGain += batches * 5;
-TotalBPMultiplier += 1.2;
+//// M A G I C - R E F I N E M E N T
 
+const MAGIC_DATA = {
+
+"Magic Refinement - Novice":{
+    magicMultiplier:1
+},
+
+"Magic Refinement - Average":{
+    magicMultiplier:2
+},
+
+"Magic Refinement - Above Average":{
+    magicMultiplier:3,
+    rolls:1
+},
+
+"Magic Refinement - Expert":{
+    magicMultiplier:4,
+    rolls:1
+},
+
+"Magic Refinement - Arcana Maximum":{
+    magicMultiplier:5,
+    rolls:1
 }
 
-if(training === "Weighted T4 - Depleted"){
+};
 
-strengthGain += 0;
-strengthGain += batches * 5;
-bpGainMultiplier += 3.5;
-
-}
-
-if(training === "Weighted T5+"){
-
-strengthGain += 20;
-strengthGain += batches * 5;
-TotalBPMultiplier += 1.1;
-
-}
 //
-// GRAVITY
+// INJURIES
 //
 
-if(training === "Gravity T1"){
+const GRAVITY_INJURIES = [
+"Minor Injury",
+"Serious Injury (Life Threatening)",
+"Critical Injury (Life Threatening)",
+"Immediate Injury (Life Threatening)"
+];
+
+const ENERGY_INJURIES = {
+1:"Simple Debilitating Injury.",
+2:"Instability - EQ doubles or halves randomly per Ki Attack. Uncontrolled damage if doubling",
+3:"Sensory De-sync - Rceive phantom senses, False Sounds, False Feelings behind you, False Touches",
+4:"Backlash - Energy attacks are unstable, partially injure user and ignore Endurance.",
+5:"Delayed Onset Ki Disorder!!! Lose ability to control energy all together for 8 sessions."
+};
+
+const MAGIC_CONSEQUENCES = {
+"Magic Refinement - Above Average":1,
+"Magic Refinement - Expert":1,
+"Magic Refinement - Arcana Maximum":1
+};
+
+let gravityRolls = [];
+let gravityInjuries = [];
+
+let energyRolls = [];
+let energyInjuries = [];
+
+let magicRolls = [];
+let magicFailures = 0;
 
-bpGainMultiplier += 1.5;
-
-enduranceGain += 25;
-enduranceGain2 += 10;
-enduranceGain += batches * 15;
-strengthGain += batches * 5;
-dexGain += batches * 5;
-
-}
-
-if(training === "Gravity T2"){
-
-bpGainMultiplier += 2.5;
-
-enduranceGain += 25;
-enduranceGain2 += 10;
-enduranceGain += batches * 15;
-strengthGain += batches * 5;
-dexGain += batches * 5;
-extraPercentText =
-"Brief Exhaustion: Reduce Power Level by 25% for 2 non-solo sessions. If you roll a 1, Gain an injury\n";
-InjuryChance = Math.floor(Math.random() * 6) + 1
-
-}
-
-if(training === "Gravity T3"){
-
-bpGainMultiplier += 4;
-
-enduranceGain += 30;
-enduranceGain2 += 15;
-enduranceGain += batches * 15;
-strengthGain += batches * 5;
-dexGain += batches * 5;
-extraPercentText =
-"Brief Exhaustion: Reduce Power Level by 50% for 3 non-solo sessions. If you roll a 1, Gain an injury\n";
-InjuryChance = Math.floor(Math.random() * 6) + 1
-InjuryChance2 = Math.floor(Math.random() * 6) + 1
-
-}
-
-if(training === "Gravity T4"){
-
-bpGainMultiplier += 1;
-TotalBPMultiplier += 2
-
-enduranceGain += 35;
-enduranceGain2 += 20;
-enduranceGain += batches * 15;
-strengthGain += batches * 5;
-dexGain += batches * 5;
-extraPercentText =
-"Brief Exhaustion: Reduce Power Level by 75% for 4 non-solo sessions. If you roll a 1, Gain an injury\n";
-InjuryChance = Math.floor(Math.random() * 6) + 1
-InjuryChance2 = Math.floor(Math.random() * 6) + 1
-InjuryChance3 = Math.floor(Math.random() * 6) + 1
-
-}
-
-//
-// ENERGY AMP
-//
-
-if(training === "Energy Amplification T1"){
-
-bpGainMultiplier += 1.5;
-
-eqGain += batches * 5;
-
-}
-
-if(training === "Energy Amplification T2"){
-
-bpGainMultiplier += 2;
-
-eqGain += batches * 10;
-InjuryChance = Math.floor(Math.random() * 6) + 1
-extraPercentText =
-"If you roll a 1, Sustain an injury for 5 non-solo sessions\n";
-
-}
-
-if(training === "Energy Amplification T3"){
-
-bpGainMultiplier += 4;
-
-eqGain += batches * 15;
-InjuryChance = Math.floor(Math.random() * 6) + 1
-InjuryChance2 = Math.floor(Math.random() * 6) + 1
-extraPercentText =
-"If you roll a 1, Sustain an injury for 5 non-solo sessions per injury\n";
-
-}
-
-if(training === "Energy Amplification T4"){
-
-bpGainMultiplier += 8;
-
-eqGain += batches * 25;
-InjuryChance = Math.floor(Math.random() * 6) + 1
-InjuryChance2 = Math.floor(Math.random() * 6) + 1
-InjuryChance3 = Math.floor(Math.random() * 6) + 1
-extraPercentText =
-"If you roll a 1, Sustain an injury for 5 non-solo sessions per injury\n";
-
-}
-
-if(training === "Energy Amplification T1 - Fighting"){
-
-bpGainMultiplier += 1;
-TotalBPMultiplier += 2
-eqGain += batches * 5;
-InjuryChance = Math.floor(Math.random() * 6) + 1
-extraPercentText =
-"If you roll a 1, Sustain an injury for 5 non-solo sessions per injury\n";
-
-}
-
-if(training === "Energy Amplification T2 - Fighting"){
-
-bpGainMultiplier += 1;
-TotalBPMultiplier += 2
-eqGain += batches * 10;
-InjuryChance = Math.floor(Math.random() * 6) + 1
-InjuryChance2 = Math.floor(Math.random() * 6) + 1
-extraPercentText =
-"If you roll a 1, Sustain an injury for 5 non-solo sessions per injury\n";
-
-}
-
-if(training === "Energy Amplification T3 - Fighting"){
-
-bpGainMultiplier += 1;
-TotalBPMultiplier += 2
-eqGain += batches * 15;
-InjuryChance = Math.floor(Math.random() * 6) + 1
-InjuryChance2 = Math.floor(Math.random() * 6) + 1
-InjuryChance3 = Math.floor(Math.random() * 6) + 1
-extraPercentText =
-"If you roll a 1, Sustain an injury for 5 non-solo sessions per injury\n";
-
-}
-
-if(training === "Energy Amplification T4 - Fighting"){
-
-bpGainMultiplier += 1;
-TotalBPMultiplier += 2
-eqGain += batches * 25;
-InjuryChance = Math.floor(Math.random() * 6) + 1
-InjuryChance2 = Math.floor(Math.random() * 6) + 1
-InjuryChance3 = Math.floor(Math.random() * 6) + 1
-InjuryChance4 = Math.floor(Math.random() * 6) + 1
-extraPercentText =
-"If you roll a 1, Sustain an injury for 5 non-solo sessions per injury\n";
-
-}
-
-//
-// MAGIC REFINEMENT
-//
-
-if(training === "Magic Refinement - Novice"){
-  
-  bpGainMultiplier += 1.25
-  magicGain += batches * 5;
-  
-}
-
-if(training === "Magic Refinement - Average"){
- 
-  bpGainMultiplier += 1.75
-  magicGain += batches * 5;
-
-}
-
-if(training === "Magic Refinement - Above Average"){
-  
-  bpGainMultiplier += 2
-  magicGain += batches * 10;
-
-  InjuryChance = Math.floor(Math.random() * 100) + 1
-
-  extraPercentText =
-"If you roll a 5 or lower - Summon Staff for a 'Dangerous Mystical Rebound'\n";
-}
-
-if(training === "Magic Refinement - Expert"){
-  
-  bpGainMultiplier += 5
-  magicGain += batches * 25;
-
-  InjuryChance = Math.floor(Math.random() * 100) + 1
-
-  extraPercentText =
-"If you roll a 15 or lower - Summon Staff for a 'Super Dangerous Mystical Rebound'\n";
-
-}
-
-if(training === "Magic Refinement - Arcana Maximum"){
-  
-  bpGainMultiplier += 10
-  magicGain += batches * 50;
-
-  InjuryChance = Math.floor(Math.random() * 100) + 1
-
-  extraPercentText =
-"If you roll a 30 or lower - Summon Staff for a 'Catastrophic Mystical Recursion'. Also reduce gains to Expert\n";
-
-}
-
-//
-// HYPERBOLIC TIME CHAMBER
-//
-
-if(htc === "Hyberbolic Time Chamber - Millennium Room 1 Days"){
-
-  bpGainMultiplier += 1.5
-  
-  strengthGain += 10;
-  dexGain += 10;
-  enduranceGain = 10;
-  eqGain += 10;
-  magicGain += 10;
-
-  HTCpercent += 10;
-}
-
-if(htc === "Hyberbolic Time Chamber - Millennium Room 2 Days"){
-
-  bpGainMultiplier += 3
-  
-  strengthGain += 20;
-  dexGain += 20;
-  enduranceGain += 20;
-  eqGain += 20;
-  magicGain += 20;
-
-  HTCpercent += 20;
-}
-
-if(htc === "Hyberbolic Time Chamber - Millennium Room 3 Days"){
-
-  bpGainMultiplier += 5.5
-  
-  strengthGain += 30;
-  dexGain += 30;
-  enduranceGain += 30;
-  eqGain += 30;
-  magicGain += 30;
-
-  HTCpercent += 30;
-}
-
-if(htc === "Hyberbolic Time Chamber - Millennium Room 4 Days"){
-
-  bpGainMultiplier += 7
-  
-  strengthGain += 40;
-  dexGain += 40;
-  enduranceGain += 40;
-  eqGain += 40;
-  magicGain += 40;
-
-  HTCpercent += 40;
-}
-
-if(htc === "Hyberbolic Time Chamber - Millennium Room 5 Days"){
-
-  bpGainMultiplier += 9.5
-  
-  strengthGain += 50;
-  dexGain += 50;
-  enduranceGain += 50;
-  eqGain += 50;
-  magicGain += 50;
-
-  HTCpercent += 50;
-}
-
-if(htc === "Hyberbolic Time Chamber - Millennium Room 6 Days"){
-
-  bpGainMultiplier += 11
-  
-  strengthGain += 60;
-  dexGain += 60;
-  enduranceGain += 60;
-  eqGain += 60;
-  magicGain += 60;
-
-  HTCpercent += 60;
-}
-
-if(htc === "Hyberbolic Time Chamber - Millennium Room 7 Days"){
-
-  bpGainMultiplier += 12.5
-  
-  strengthGain += 70;
-  dexGain += 70;
-  enduranceGain += 70;
-  eqGain += 70;
-  magicGain += 70;
-
-  HTCpercent += 70;
-}
-
-if(htc === "Hyberbolic Time Chamber - Millennium Room 8 Days"){
-
-  bpGainMultiplier += 14
-  
-  strengthGain += 80;
-  dexGain += 80;
-  enduranceGain += 80;
-  eqGain += 80;
-  magicGain += 80;
-
-  HTCpercent += 80;
-}
-
-if(htc === "Hyberbolic Time Chamber - Millennium Room 9 Days"){
-
-  bpGainMultiplier += 15.5
-  
-  strengthGain += 90;
-  dexGain += 90;
-  enduranceGain += 90;
-  eqGain += 90;
-  magicGain += 90;
-
-  HTCpercent += 90;
-}
-
-if(htc === "Hyberbolic Time Chamber - Millennium Room 10 Days"){
-
-  bpGainMultiplier += 17
-  
-  strengthGain += 100;
-  dexGain += 100;
-  enduranceGain += 100;
-  eqGain += 100;
-  magicGain += 100;
-
-  HTCpercent += 100;
-}
-
-if(htc === "Hyberbolic Time Chamber - Century Room 1 Year"){
-
-  TotalBPMultiplier += 10
-  
-  strengthGain += 100;
-  dexGain += 100;
-  enduranceGain += 100;
-  eqGain += 100;
-  magicGain += 100;
-
-  HTCpercent += 50;
-}
-
-if(htc === "Hyberbolic Time Chamber - Century Room 2 Years"){
-
-  TotalBPMultiplier += 20
-  
-  strengthGain += 200;
-  dexGain += 200;
-  enduranceGain += 200;
-  eqGain += 200;
-  magicGain += 200;
-
-  HTCpercent += 100;
-}
-
-if(htc === "Hyberbolic Time Chamber - Century Room 3 Years"){
-
-  TotalBPMultiplier += 30
-  
-  strengthGain += 300;
-  dexGain += 300;
-  enduranceGain += 300;
-  eqGain += 300;
-  magicGain += 300;
-
-  HTCpercent += 150;
-}
-
-if(htc === "Hyberbolic Time Chamber - Century Room 4 Years"){
-
-  TotalBPMultiplier += 40
-  
-  strengthGain += 400;
-  dexGain += 400;
-  enduranceGain += 400;
-  eqGain += 400;
-  magicGain += 400;
-
-  HTCpercent += 200;
-  extraPercentText =
-"Your memories blur, time no longer moves as it should, and a mark appears on your body. 1 Temporal Scar\n"
-}
-
-if(htc === "Hyberbolic Time Chamber - Century Room 5 Years"){
-
-  TotalBPMultiplier += 50
-  
-  strengthGain += 450;
-  dexGain += 450;
-  enduranceGain += 450;
-  eqGain += 450;
-  magicGain += 450;
-
-  HTCpercent += 225;
-  extraPercentText =
-"Your body feels unreal, the chamber grows dark and meanacing, your training slows. 3 Temporal Scars\n"
-}
-
-if(htc === "Hyberbolic Time Chamber - Century Room 6 Years"){
-
-  TotalBPMultiplier += 60
-  
-  strengthGain += 500;
-  dexGain += 500;
-  enduranceGain += 500;
-  eqGain += 500;
-  magicGain += 500;
-
-  HTCpercent += 250;
-  extraPercentText =
-"Your body feels unreal, the chamber grows dark and meanacing, your training slows. 3 Temporal Scars\n"
-}
-
-if(htc === "Hyberbolic Time Chamber - Century Room 7 Years"){
-
-  TotalBPMultiplier += 70
-  
-  strengthGain += 550;
-  dexGain += 550;
-  enduranceGain += 550;
-  eqGain += 550;
-  magicGain += 550;
-
-  HTCpercent += 275;
-  extraPercentText =
-"Time loops, Phantons across the horizon, you feel watched, you hear yourself from years past. 3 Temporal Scars and 1 Temporal Fracture\n"
-}
-
-if(htc === "Hyberbolic Time Chamber - Century Room 8 Years"){
-
-  TotalBPMultiplier += 80
-  
-  strengthGain += 600;
-  dexGain += 600;
-  enduranceGain += 600;
-  eqGain += 600;
-  magicGain += 600;
-
-  HTCpercent += 300;
-  extraPercentText +=
-"Time loops, Phantons across the horizon, you feel watched, you hear yourself from years past. 3 Temporal Scars and 1 Temporal Fracture\n"
-}
-
-if(htc === "Hyberbolic Time Chamber - Century Room 9 Years"){
-
-  TotalBPMultiplier += 90
-  
-  strengthGain += 650;
-  dexGain += 650;
-  enduranceGain += 650;
-  eqGain += 650;
-  magicGain += 650;
-
-  HTCpercent += 325;
-  extraPercentText =
-"The door rattles, the chamber cracks, cracks appear in the air, the phantoms are closer. 4 Temporal Scars and 2 Temporal Fracture\n"
-}
-
-if(htc === "Hyberbolic Time Chamber - Century Room 10+ Years"){
-
-  TotalBPMultiplier += 100
-  
-  strengthGain += 700;
-  dexGain += 700;
-  enduranceGain += 700;
-  eqGain += 700;
-  magicGain += 700;
-
-  HTCpercent += 350;
-  extraPercentText =
-  "The door vanishes. A loud metal whine erupts. Contact admins for a Catastrophic Temporal Event"
-}
 
 //
 // FINAL BP
 //
 
-let totalTrainingPoints =
-(basePoints + bonusPoints) / SaiyanKneecap;
+if(WEIGHTED_DATA[training]){
+
+const data = WEIGHTED_DATA[training];
+
+strengthGain += data.strength || 0;
+strengthGain += batches * (data.batchStrength || 0);
+
+bpGainMultiplier += data.bpGainMultiplier || 0;
+TotalBPMultiplier += data.totalMultiplier || 0;
+
+}
+
+if(GRAVITY_DATA[training]){
+
+const data = GRAVITY_DATA[training];
+
+bpGainMultiplier += data.bpGainMultiplier || 0;
+TotalBPMultiplier += data.totalMultiplier || 0;
+
+enduranceGain += data.endurance || 0;
+enduranceGain2 += data.endurance2 || 0;
+
+enduranceGain += batches * (data.batchEndurance || 0);
+strengthGain += batches * (data.batchStrength || 0);
+dexGain += batches * (data.batchDex || 0);
+
+extraPercentText = data.text || "";
+
+for(let i = 0; i < (data.injuries || 0); i++){
+
+    let roll =
+    Math.floor(Math.random() * 6) + 1;
+
+    gravityRolls.push(roll);
+
+    if(roll === 1){
+
+        let severity =
+        gravityInjuries.length;
+
+        severity =
+        Math.min(
+            severity,
+            GRAVITY_INJURIES.length - 1
+        );
+
+        if(data.lifeThreatening){
+
+    gravityInjuries.push(
+        "Life Threatening Injury"
+    );
+
+    lifeThreateningCount++;
+}else{
+
+    gravityInjuries.push(
+        GRAVITY_INJURIES[severity]
+    );
+
+if(
+    GRAVITY_INJURIES[severity]
+    .includes("Life Threatening")
+){
+    lifeThreateningCount++;
+}
+}
+
+}
+
+}
+}
+
+if(ENERGY_DATA[training]){
+
+const data = ENERGY_DATA[training];
+
+bpGainMultiplier += data.bpGainMultiplier || 0;
+TotalBPMultiplier += data.totalMultiplier || 0;
+
+eqGain += batches * (data.eqBatch || 0);
+
+extraPercentText = data.text || "";
+
+for(let i = 0; i < (data.injuries || 0); i++){
+
+    let roll =
+    Math.floor(Math.random() * 6) + 1;
+
+    energyRolls.push(roll);
+
+    if(roll === 1){
+
+        let injuryRoll =
+        Math.floor(Math.random() * 4) + 1;
+
+        energyInjuries.push(
+            ENERGY_INJURIES[injuryRoll]
+        );
+    }
+    if(
+    energyInjuries.length >= 3 &&
+    !hasKiDisorder
+){
+    energyInjuries.push(
+        "Delayed Onset Ki Disorder!!! Lose ability to control energy all together for 8 sessions."
+    );
+
+    hasKiDisorder = true;
+}
+}
+
+}
+
+if(MAGIC_DATA[training]){
+
+    const data = MAGIC_DATA[training];
+
+    let failThreshold = 0;
+
+    switch(training){
+
+        case "Magic Refinement - Above Average":
+            failThreshold = 5;
+            break;
+
+        case "Magic Refinement - Expert":
+            failThreshold = 15;
+            break;
+
+        case "Magic Refinement - Arcana Maximum":
+            failThreshold = 30;
+            break;
+    }
+
+    freePercent = 0;
+
+    for(let i = 0; i < (data.rolls || 0); i++){
+
+        const roll =
+        Math.floor(Math.random() * 100) + 1;
+
+        magicRolls.push(roll);
+
+        if(roll <= failThreshold){
+            magicFailures++;
+        }
+    }
+
+    let multiplier = data.magicMultiplier;
+
+    // Arcana failure becomes Expert rewards
+    if(
+        training === "Magic Refinement - Arcana Maximum" &&
+        magicFailures > 0
+    ){
+        multiplier =
+        MAGIC_DATA["Magic Refinement - Expert"]
+        .magicMultiplier;
+    }
+
+    magicGain =
+    totalTrainingPoints *
+    multiplier;
+}
+
+if(HTC_DATA[htc]){
+
+const data = HTC_DATA[htc];
+
+bpGainMultiplier += data.bpGainMultiplier || 0;
+TotalBPMultiplier += data.totalMultiplier || 0;
+
+strengthGain += data.strength || 0;
+dexGain += data.dex || 0;
+enduranceGain += data.endurance || 0;
+eqGain += data.eq || 0;
+magicGain += data.magic || 0;
+
+HTCpercent += data.htcPercent || 0;
+
+if(data.text){
+    extraPercentText += data.text + "\n";
+}
+
+}
+
+permanentBPReduction =
+Math.min(
+    lifeThreateningCount * 0.07,
+    0.15
+);
+
+if(hasKiDisorder){
+    permanentBPReduction += 0.10;
+}
 
 let bpGain =
 Math.floor(
@@ -1416,76 +1508,30 @@ totalTrainingPoints *
 bpGainMultiplier
 );
 
-if(training === "Magic Refinement - Novice"){
-magicGain =
-Math.floor(
-  totalTrainingPoints * 
-  bpGainMultiplier
-  );
+if(MAGIC_DATA[training]){
 
-bpGain = 0
-freePercent = 0
+    bpGain = 0;
+    freePercent = 0;
+
 }
-
-if(training === "Magic Refinement - Average"){
-magicGain =
-Math.floor(
-  totalTrainingPoints * 
-  bpGainMultiplier
-  );
-
-bpGain = 0
-freePercent = 0
-}
-
-if(training === "Magic Refinement - Above Average"){
-magicGain =
-Math.floor(
-  totalTrainingPoints * 
-  bpGainMultiplier
-  );
-
-bpGain = 0
-freePercent = 0
-}
-
-if(training === "Magic Refinement - Expert"){
-magicGain =
-Math.floor(
-  totalTrainingPoints * 
-  bpGainMultiplier
-  );
-
-bpGain = 0
-freePercent = 0
-}
-
-if(training === "Magic Refinement - Arcana Maximum"){
-magicGain =
-Math.floor(
-  totalTrainingPoints * 
-  bpGainMultiplier
-  );
-
-bpGain = 0
-freePercent = 0
-}
-
 
 let finalBP =
 (startingBP +
 bpGain) * TotalBPMultiplier;
+
+let adjustedFinalBP =
+finalBP *
+(1 - permanentBPReduction);
 
 let EndFree =
 (freePercent +
 HTCpercent
 );
 
+
 //
 // OUTPUT
 //
-
-let output = "";
 
 output += "=== INPUT ===\n\n";
 
@@ -1559,6 +1605,32 @@ output +=
 Math.trunc(finalBP) +
 "\n\n";
 
+if(permanentBPReduction > 0){
+
+    output +=
+    "Permanent BP Reduction: -" +
+    (permanentBPReduction * 100).toFixed(0) +
+    "%\n";
+
+    output +=
+    "Final BP (After Injury): " +
+    Math.trunc(adjustedFinalBP) +
+    "\n";
+
+}else{
+
+    output +=
+"Raw Final BP: " +
+Math.trunc(finalBP) +
+"\n";
+
+output +=
+"Adjusted Final BP: " +
+Math.trunc(adjustedFinalBP) +
+"\n\n";
+
+}
+
 output +=
 "Free Percentage: +" +
 EndFree +
@@ -1600,155 +1672,118 @@ output +=
 eqGain +
 "%\n";
 
-if(training === "Gravity T2")
-output +=
-"Injury Chance: " +
-InjuryChance +
-"\n";
+if(gravityRolls.length){
 
-if(training === "Gravity T3")
-output +=
-"Injury Chance: " +
-InjuryChance +
-"\n";
+    output += "\n=== GRAVITY ROLLS ===\n";
 
-if(training === "Gravity T3")
-output +=
-"Injury Chance: " +
-InjuryChance2 +
-"\n"
+    gravityRolls.forEach((roll,index)=>{
 
-if(training === "Gravity T4")
-output +=
-"Injury Chance: " +
-InjuryChance +
-"\n";
+        output +=
+        "Roll " + 
+        (index+1) +
+        ": " +
+        roll +
+        "\n";
+    });
 
-if(training === "Gravity T4")
-output +=
-"Injury Chance: " +
-InjuryChance2 +
-"\n";
+}
 
-if(training === "Gravity T4")
-output +=
-"Injury Chance: " +
-InjuryChance3 +
-"\n";
+    if(gravityInjuries.length){
 
-if(training === "Energy Amplification T2")
-output +=
-"Injury Chance: " +
-InjuryChance +
-"\n";
+        output +=
+        "\nGravity Injuries Sustained:\n";
 
-if(training === "Energy Amplification T3")
-output +=
-"Injury Chance: " +
-InjuryChance +
-"\n";
+        gravityInjuries.forEach((injury,index)=>{
 
-if(training === "Energy Amplification T3")
-output +=
-"Injury Chance: " +
-InjuryChance2 +
-"\n";
+            output +=
+            (index+1) +
+            ". " +
+            injury +
+            "\n";
+        });
 
-if(training === "Energy Amplification T4")
-output +=
-"Injury Chance: " +
-InjuryChance +
-"\n";
+        output +=
+        "\nReminder:\n" +
+        "-5% PL per injury\n" +
+        "-50% Endurance gains\n" +
+        "-10% BP per Life Threatening Injury\n" +
+        "-25 Permanent Endurance per Life Threatening Injury\n" +
+        "-7% Permanent Total BP per Life Threatening Injury (Max 15%)\n";
+    }
 
-if(training === "Energy Amplification T4")
-output +=
-"Injury Chance: " +
-InjuryChance2 +
-"\n";
 
-if(training === "Energy Amplification T4")
-output +=
-"Injury Chance: " +
-InjuryChance3 +
-"\n";
+if(energyRolls.length){
 
-if(training === "Energy Amplification T1 - Fighting")
-output +=
-"Injury Chance: " +
-InjuryChance +
-"\n";
+    output +=
+    "\n=== ENERGY ROLLS ===\n";
 
-if(training === "Energy Amplification T2 - Fighting")
-output +=
-"Injury Chance: " +
-InjuryChance +
-"\n";
+    energyRolls.forEach((roll,index)=>{
 
-if(training === "Energy Amplification T2 - Fighting")
-output +=
-"Injury Chance: " +
-InjuryChance2 +
-"\n";
+        output +=
+        "Roll " +
+        (index+1) +
+        ": " +
+        roll +
+        "\n";
+    });
 
-if(training === "Energy Amplification T3 - Fighting")
-output +=
-"Injury Chance: " +
-InjuryChance +
-"\n";
+    if(energyInjuries.length){
 
-if(training === "Energy Amplification T3 - Fighting")
-output +=
-"Injury Chance: " +
-InjuryChance2 +
-"\n";
+        output +=
+        "\nEnergy Injuries Sustained:\n";
 
-if(training === "Energy Amplification T3 - Fighting")
-output +=
-"Injury Chance: " +
-InjuryChance3 +
-"\n";
+        energyInjuries.forEach((injury,index)=>{
 
-if(training === "Energy Amplification T4 - Fighting")
-output +=
-"Injury Chance: " +
-InjuryChance +
-"\n";
+            output +=
+            (index+1) +
+            ". " +
+            injury +
+            "\n";
+        });
+    }
+}
 
-if(training === "Energy Amplification T4 - Fighting")
-output +=
-"Injury Chance: " +
-InjuryChance2 +
-"\n";
 
-if(training === "Energy Amplification T4 - Fighting")
-output +=
-"Injury Chance: " +
-InjuryChance3 +
-"\n";
+if(magicRolls.length){
 
-if(training === "Energy Amplification T4 - Fighting")
-output +=
-"Injury Chance: " +
-InjuryChance4 +
-"\n";
+    output +=
+    "\n=== MAGIC ROLLS ===\n";
 
-if(training === "Magic Refinement - Above Average")
-output +=
-"Mystic Consequences: " +
-InjuryChance +
-"\n";
+    magicRolls.forEach((roll,index)=>{
 
-if(training === "Magic Refinement - Expert")
-output +=
-"Mystic Consequences: " +
-InjuryChance +
-"\n";
+        output +=
+        "Roll " +
+        (index+1) +
+        ": " +
+        roll +
+        "\n";
+    });
 
-if(training === "Magic Refinement - Arcana Maximum")
-output +=
-"Mystic Consequences: " +
-InjuryChance +
-"\n";
+    if(magicFailures){
+
+    output +=
+    "\nMystic Consequence Triggered!\n";
+
+    if(
+        training ===
+        "Magic Refinement - Arcana Maximum"
+    ){
+
+        output +=
+        "Arcana Maximum failed. Rewards reduced to Expert tier.\n";
+
+    }
+
+    output +=
+    "Announce to Staff!\n";
+}
+    else{
+
+        output +=
+        "\nNo Mystic Consequences.\n";
+    }
+}
+
 
 output += "\n" + extraPercentText;
 
