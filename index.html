@@ -707,6 +707,8 @@ let racialBPMultiplier = 0;
 
 let strengthGain = 0;
 let dexGain = 0;
+let dexstrGainOG = 0;
+let dexstrGain = 0; 
 let enduranceGain = 0;
 let enduranceGain2 = 0;
 let eqGain = 0;
@@ -898,7 +900,7 @@ const HTC_DATA = {
 },
 
 "Hyberbolic Time Chamber - Millennium Room 3 Days":{
-    bpGainMultiplier:5.5,
+    bpGainMultiplier:4.5,
     strength:30,
     dex:30,
     endurance:30,
@@ -908,7 +910,7 @@ const HTC_DATA = {
 },
 
 "Hyberbolic Time Chamber - Millennium Room 4 Days":{
-    bpGainMultiplier:7,
+    bpGainMultiplier:6,
     strength:40,
     dex:40,
     endurance:40,
@@ -918,7 +920,7 @@ const HTC_DATA = {
 },
 
 "Hyberbolic Time Chamber - Millennium Room 5 Days":{
-    bpGainMultiplier:9.5,
+    bpGainMultiplier:7.5,
     strength:50,
     dex:50,
     endurance:50,
@@ -928,7 +930,7 @@ const HTC_DATA = {
 },
 
 "Hyberbolic Time Chamber - Millennium Room 6 Days":{
-    bpGainMultiplier:11,
+    bpGainMultiplier:9,
     strength:60,
     dex:60,
     endurance:60,
@@ -938,7 +940,7 @@ const HTC_DATA = {
 },
 
 "Hyberbolic Time Chamber - Millennium Room 7 Days":{
-    bpGainMultiplier:12.5,
+    bpGainMultiplier:10.5,
     strength:70,
     dex:70,
     endurance:70,
@@ -948,7 +950,7 @@ const HTC_DATA = {
 },
 
 "Hyberbolic Time Chamber - Millennium Room 8 Days":{
-    bpGainMultiplier:14,
+    bpGainMultiplier:12,
     strength:80,
     dex:80,
     endurance:80,
@@ -958,7 +960,7 @@ const HTC_DATA = {
 },
 
 "Hyberbolic Time Chamber - Millennium Room 9 Days":{
-    bpGainMultiplier:15.5,
+    bpGainMultiplier:13.5,
     strength:90,
     dex:90,
     endurance:90,
@@ -968,7 +970,7 @@ const HTC_DATA = {
 },
 
 "Hyberbolic Time Chamber - Millennium Room 10 Days":{
-    bpGainMultiplier:17,
+    bpGainMultiplier:15,
     strength:100,
     dex:100,
     endurance:100,
@@ -1206,41 +1208,44 @@ const ENERGY_DATA = {
 const WEIGHTED_DATA = {
 
 "Weighted T1+2":{
-    strength:20,
-    batchStrength:5,
+    dexstrGainOG:20,
+    batchDexstr:5,
     totalMultiplier:2
 },
 
 "Weighted T1+2 - Depleted":{
+    dexstrGainOG:20,
     batchStrength:5,
     bpGainMultiplier:3.5
 },
 
 "Weighted T3":{
-    strength:20,
-    batchStrength:5,
+    dexstrGainOG:20,
+    batchDexstr:5,
     totalMultiplier:1.5
 },
 
 "Weighted T3 - Depleted":{
-    batchStrength:5,
+    dexstrGainOG:20,
+    batchDexstr:5,
     bpGainMultiplier:3.5
 },
 
 "Weighted T4":{
-    strength:20,
-    batchStrength:5,
+    dexstrGainOG:20,
+    batchDexstr:5,
     totalMultiplier:1.2
 },
 
 "Weighted T4 - Depleted":{
-    batchStrength:5,
+    dexstrGainOG:20,
+    batchDexstr:5,
     bpGainMultiplier:3.5
 },
 
 "Weighted T5+":{
-    strength:20,
-    batchStrength:5,
+    dexstrGainOG:20,
+    batchDexstr:5,
     totalMultiplier:1.1
 }
 
@@ -1251,25 +1256,30 @@ const WEIGHTED_DATA = {
 const MAGIC_DATA = {
 
 "Magic Refinement - Novice":{
-    magicMultiplier:1
+    magicMultiplier:1.25,
+    batchMagic:0
 },
 
 "Magic Refinement - Average":{
-    magicMultiplier:2
+    magicMultiplier:1.75,
+    batchMagic:5
 },
 
 "Magic Refinement - Above Average":{
-    magicMultiplier:3,
+    magicMultiplier:2,
+    batchMagic:10,
     rolls:1
 },
 
 "Magic Refinement - Expert":{
-    magicMultiplier:4,
+    magicMultiplier:5,
+    batchMagic:25,
     rolls:1
 },
 
 "Magic Refinement - Arcana Maximum":{
-    magicMultiplier:5,
+    magicMultiplier:10,
+    batchMagic:50,
     rolls:1
 }
 
@@ -1291,7 +1301,7 @@ const ENERGY_INJURIES = {
 2:"Instability - EQ doubles or halves randomly per Ki Attack. Uncontrolled damage if doubling",
 3:"Sensory De-sync - Rceive phantom senses, False Sounds, False Feelings behind you, False Touches",
 4:"Backlash - Energy attacks are unstable, partially injure user and ignore Endurance.",
-5:"Delayed Onset Ki Disorder!!! Lose ability to control energy all together for 8 sessions."
+5:"Delayed Onset Ki Disorder!!! Lose the ability to control energy all together for 8 sessions."
 };
 
 const MAGIC_CONSEQUENCES = {
@@ -1318,8 +1328,9 @@ if(WEIGHTED_DATA[training]){
 
 const data = WEIGHTED_DATA[training];
 
-strengthGain += data.strength || 0;
-strengthGain += batches * (data.batchStrength || 0);
+dexstrGainOG += data.dexstrGainOG || 0;
+dexstrGain += data.batchDexstr || 0;
+dexstrGain += batches * (data.batchDexstr || 0);
 
 bpGainMultiplier += data.bpGainMultiplier || 0;
 TotalBPMultiplier += data.totalMultiplier || 0;
@@ -1495,8 +1506,10 @@ if(MAGIC_DATA[training]){
     }
 
     magicGain =
-    totalTrainingPoints *
-    multiplier;
+    Math.floor(totalTrainingPoints *
+    multiplier);
+
+    magicGain += batches * (data.batchMagic || 0);
 }
 
 if(HTC_DATA[htc]){
@@ -1670,6 +1683,18 @@ Math.trunc(adjustedFinalBP) +
 output +=
 "Free Percentage: +" +
 EndFree +
+"%\n";
+
+if(dexstrGainOG)
+output +=
+"Dexterity or Strength: +" +
+dexstrGainOG +
+"%\n";
+
+if(dexstrGainOG)
+output +=
+"Dexterity or Strength - Bonus: +" +
+dexstrGain +
 "%\n";
 
 if(strengthGain)
